@@ -1,36 +1,172 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tic Tac Toe Multiplayer (Next.js + MongoDB Atlas)
 
-## Getting Started
+A full-stack 2-player Tic Tac Toe web app built with Next.js App Router and MongoDB Atlas (Mongoose). Players join by username, play in real time (polling), and all games/moves/stats are persisted. Includes Leaderboard, Player History, and Replay. Demonstrates SSG, CSR, SSR, and ISR, with SEO metadata on each route.
 
-First, run the development server:
+## Tech Stack
+- Framework: Next.js 15 (App Router)
+- Language: TypeScript (strict in app code)
+- DB: MongoDB Atlas
+- ORM: Mongoose
+- Styling: Tailwind CSS (App template)
+- Auth: Username only (no login)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Key Features
+- Create a game, share ID, second player joins, alternate X/O
+- Persist games, moves, results to MongoDB
+- Update Player stats (wins/losses/draws)
+- Leaderboard ranked by wins
+- Player History list and Game Replay
+- Rendering modes:
+  - SSG: Home `/`
+  - CSR: Game board `/game/[gameId]`
+  - SSR: Leaderboard `/leaderboard`
+  - ISR: History `/history` (revalidate 30s)
+- SEO metadata per route
+
+## Project Structure (selected)
+```
+src/
+  app/
+    api/
+      players/route.ts                # GET/POST players
+      games/route.ts                  # POST create game
+      games/open/route.ts             # GET open games
+      games/[gameId]/route.ts         # GET game details + moves
+      games/[gameId]/join/route.ts    # POST join game
+      games/[gameId]/move/route.ts    # POST submit move
+      history/[playerId]/route.ts     # GET player's games + moves
+    page.tsx                          # Home (SSG): create & join by ID
+    game/[gameId]/page.tsx            # Game (CSR)
+    leaderboard/page.tsx              # Leaderboard (SSR)
+    history/page.tsx                  # Players list (ISR)
+    history/[gameId]/page.tsx         # Replay page (server)
+    history/user/[playerId]/page.tsx  # Player’s game list (server)
+    layout.tsx                        # App shell + SEO defaults
+    globals.css
+  lib/
+    db.ts                             # Mongoose connection helper
+    game.ts                           # Board/winner helpers
+  models/
+    Player.ts
+    Game.ts
+    Move.ts
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Database Schema
+- Players
+```
+{
+  username: string (unique, required),
+  wins: number,
+  losses: number,
+  draws: number
+}
+```
+- Games
+```
+{
+  player1: ObjectId (ref: Player, required),
+  player2?: ObjectId (ref: Player),
+  status: 'open' | 'active' | 'finished',
+  winner?: ObjectId (ref: Player),
+  createdAt: Date,
+  endedAt?: Date
+}
+```
+- Moves
+```
+{
+  gameId: ObjectId (ref: Game, required),
+  playerId: ObjectId (ref: Player, required),
+  position: number (0-8),
+  timestamp: Date
+}
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Routes & Rendering
+- `/` (SSG): Create game, Join by ID, quick links
+- `/game/[gameId]` (CSR): Live board polling; make moves; shows usernames, current turn, and winner
+- `/leaderboard` (SSR): Real-time stats from MongoDB
+- `/history` (ISR - 30s): Players list linking to per-user history
+- `/history/user/[playerId]` (Server): All games for a user with opponent, result, time, and Replay button
+- `/history/[gameId]` (Server): Replay move list
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## API Endpoints
+- `GET /api/players`: List players for leaderboard
+- `POST /api/players`: Create player `{ username }`
+- `POST /api/games`: Create a new game `{ player1Username }` → returns `{ _id }`
+- `GET /api/games/open`: List open games
+- `GET /api/games/[gameId]`: Game details with moves
+- `POST /api/games/[gameId]/join`: Join open game `{ player2Username }`
+- `POST /api/games/[gameId]/move`: Submit move `{ playerUsername, position }`
+- `GET /api/history/[playerId]`: Player’s games + moves (raw)
 
-## Learn More
+## Setup
+1) Create MongoDB Atlas cluster and user
+2) Whitelist your IP or use `0.0.0.0/0` for development
+3) Copy your connection URI
+4) Create `.env.local` in project root with:
+```
+MONGODB_URI=mongodb+srv://USER:PASS@cluster0.xxx.mongodb.net/tictactoe?retryWrites=true&w=majority
+NEXT_PUBLIC_APP_NAME=Tic Tac Toe Multiplayer
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Develop
+```bash
+npm install
+npm run dev
+# open http://localhost:3000
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Build & Run
+```bash
+npm run build
+npm start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## How to Play
+- Home → Create Game (enter your username) → redirects to `/game/[gameId]`
+- Share the Game ID to your friend
+- Friend can:
+  - Open Home → Join Game by ID (enter gameId + username), or
+  - Open `/game/[gameId]`, use the Join box on the right
+- The board alternates X (player1) and O (player2)
+- At finish, winner/loser stats update; draws count for both
+- View Leaderboard and History to confirm stats
 
-## Deploy on Vercel
+## SEO & Metadata
+Each route exports metadata (title, description) for better discoverability.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Troubleshooting
+- 500 on create/join in dev: ensure `MONGODB_URI` is set and MongoDB Atlas allows your IP
+- Server action fetch: absolute origin is derived from `headers().get('origin')`
+- If using another port/host, adjust origin fallback in `app/page.tsx`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+This project is licensed under the MIT License. See the License section below or the `LICENSE` file.
+
+```
+MIT License
+
+Copyright (c) 2025
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
