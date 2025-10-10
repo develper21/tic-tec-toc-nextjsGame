@@ -2,7 +2,6 @@ import { connectToDatabase } from '@/lib/db'
 import { Game } from '@/models/Game'
 import { Player } from '@/models/Player'
 import Link from 'next/link'
-import { use } from 'react'
 
 export const metadata = {
 	title: 'User History | Tic Tac Toe',
@@ -21,11 +20,10 @@ type GameDoc = {
 	endedAt?: Date
 }
 
-export default async function UserHistoryPage(props: unknown) {
-	const { params } = props as { params: Promise<{ playerId: string }> }
-	const { playerId } = use(params)
+export default async function UserHistoryPage({ params }: { params: Promise<{ playerId: string }> }) {
+	const { playerId } = await params
 	await connectToDatabase()
-	const player = await Player.findById(playerId).lean()
+	const player = (await Player.findById(playerId).lean()) as unknown as { username?: string } | null
 	const games = (await Game.find({ $or: [{ player1: playerId }, { player2: playerId }] })
 		.sort({ createdAt: -1 })
 		.populate('player1')
@@ -35,7 +33,7 @@ export default async function UserHistoryPage(props: unknown) {
 	return (
 		<main className="min-h-[calc(100vh-120px)]">
 			<div className="mx-auto max-w-5xl px-4 py-12">
-				<h1 className="text-2xl font-bold">{(player as any)?.username}'s Games</h1>
+				<h1 className="text-2xl font-bold">{player?.username}&apos;s Games</h1>
 				<div className="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
 					<table className="min-w-full text-sm">
 						<thead className="bg-gray-50 text-gray-700">
@@ -48,11 +46,11 @@ export default async function UserHistoryPage(props: unknown) {
 						</thead>
 						<tbody className="divide-y">
 							{games.map((g) => {
-								const isP1 = (g.player1?._id as any)?.toString?.() === playerId
+								const isP1 = g.player1?._id?.toString?.() === playerId
 								const opponent = isP1 ? g.player2?.username : g.player1?.username
 								let result = 'Draw'
 								if (g.winner) {
-									result = (g.winner._id as any)?.toString?.() === playerId ? 'Win' : 'Loss'
+									result = g.winner._id?.toString?.() === playerId ? 'Win' : 'Loss'
 								}
 								const when = g.endedAt || g.createdAt
 								return (
