@@ -1,0 +1,13 @@
+[build]
+  base = "tictactoe-app"
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Next.js on Netlify adapter auto-detected; if needed, install @netlify/plugin-nextjs
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+
