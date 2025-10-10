@@ -2,7 +2,6 @@ import 'server-only'
 import { connectToDatabase } from '@/lib/db'
 import { Game } from '@/models/Game'
 import { Move } from '@/models/Move'
-import { use } from 'react'
 
 export const metadata = {
 	title: 'Replay | Tic Tac Toe',
@@ -13,9 +12,8 @@ type PlayerDoc = { username?: string } | null | undefined
 
 type MoveDoc = { _id: string; position: number }
 
-export default async function ReplayPage(props: unknown) {
-	const { params } = props as { params: Promise<{ gameId: string }> }
-	const { gameId } = use(params)
+export default async function ReplayPage({ params }: { params: Promise<{ gameId: string }> }) {
+	const { gameId } = await params
 	await connectToDatabase()
 	const game = await Game.findById(gameId).populate('player1').populate('player2').lean()
 	if (!game) return <div className="p-6">Not found</div>
