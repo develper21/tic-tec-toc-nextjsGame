@@ -5,11 +5,11 @@ import { NextResponse } from 'next/server'
 
 export async function POST(request: Request, context: unknown) {
 	await connectToDatabase()
-	const { params } = context as { params: { gameId: string } }
+	const { gameId } = await (context as { params: Promise<{ gameId: string }> }).params
 	const body = await request.json()
 	const { player2Username } = body || {}
 	if (!player2Username) return NextResponse.json({ error: 'player2Username required' }, { status: 400 })
-	const game = await Game.findById(params.gameId)
+	const game = await Game.findById(gameId)
 	if (!game) return NextResponse.json({ error: 'not found' }, { status: 404 })
 	if (game.status !== 'open') return NextResponse.json({ error: 'game not open' }, { status: 400 })
 	let player2 = await Player.findOne({ username: player2Username })

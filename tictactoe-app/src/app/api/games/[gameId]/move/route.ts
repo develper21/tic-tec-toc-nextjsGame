@@ -7,13 +7,13 @@ import { NextResponse } from 'next/server'
 
 export async function POST(request: Request, context: unknown) {
 	await connectToDatabase()
-	const { params } = context as { params: { gameId: string } }
+	const { gameId } = await (context as { params: Promise<{ gameId: string }> }).params
 	const body = await request.json()
 	const { playerUsername, position } = body || {}
 	if (typeof position !== 'number' || position < 0 || position > 8) {
 		return NextResponse.json({ error: 'invalid position' }, { status: 400 })
 	}
-	const game = await Game.findById(params.gameId)
+	const game = await Game.findById(gameId)
 	if (!game) return NextResponse.json({ error: 'not found' }, { status: 404 })
 	if (game.status !== 'active') return NextResponse.json({ error: 'game not active' }, { status: 400 })
 	const player = await Player.findOne({ username: playerUsername })
