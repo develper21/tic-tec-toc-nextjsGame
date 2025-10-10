@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,10 +31,10 @@ export default function RootLayout({
         <div className="min-h-screen flex flex-col">
           <header className="border-b bg-gray-500 backdrop-blur">
             <div className="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between">
-              <a href="/" className="text-lg font-semibold">Tic Tac Toe</a>
+              <Link href="/" className="text-lg font-semibold">Tic Tac Toe</Link>
               <nav className="flex gap-4 text-sm">
-                <a href="/leaderboard" className="hover:text-blue-600">Leaderboard</a>
-                <a href="/history" className="hover:text-blue-600">History</a>
+                <Link href="/leaderboard" className="hover:text-blue-600">Leaderboard</Link>
+                <Link href="/history" className="hover:text-blue-600">History</Link>
               </nav>
             </div>
           </header>
