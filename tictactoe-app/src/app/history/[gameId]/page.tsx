@@ -2,6 +2,7 @@ import 'server-only'
 import { connectToDatabase } from '@/lib/db'
 import { Game } from '@/models/Game'
 import { Move } from '@/models/Move'
+import { use } from 'react'
 
 export const metadata = {
 	title: 'Replay | Tic Tac Toe',
@@ -13,15 +14,16 @@ type PlayerDoc = { username?: string } | null | undefined
 type MoveDoc = { _id: string; position: number }
 
 export default async function ReplayPage(props: unknown) {
-	const { params } = props as { params: { gameId: string } }
+	const { params } = props as { params: Promise<{ gameId: string }> }
+	const { gameId } = use(params)
 	await connectToDatabase()
-	const game = await Game.findById(params.gameId).populate('player1').populate('player2').lean()
+	const game = await Game.findById(gameId).populate('player1').populate('player2').lean()
 	if (!game) return <div className="p-6">Not found</div>
-	const moves = (await Move.find({ gameId: params.gameId }).sort({ timestamp: 1 }).lean()) as unknown as MoveDoc[]
+	const moves = (await Move.find({ gameId }).sort({ timestamp: 1 }).lean()) as unknown as MoveDoc[]
 	const p1 = (game as unknown as { player1?: PlayerDoc }).player1
 	const p2 = (game as unknown as { player2?: PlayerDoc }).player2
 	return (
-		<main className="min-h-[calc(100vh-120px)] text-black">
+		<main className="min-h-[calc(100vh-120px)]">
 			<div className="mx-auto max-w-5xl px-4 py-12">
 				<section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
 					<h1 className="text-2xl font-bold">Replay</h1>
