@@ -107,7 +107,7 @@ src/
 3) Copy your connection URI
 4) Create `.env.local` in project root with:
 ```
-MONGODB_URI=mongodb+srv://USER:PASS@cluster0.xxx.mongodb.net/tictactoe?retryWrites=true&w=majority
+MONGODB_URI=ADD_YOUR_MONGO_ATLAS_URL
 NEXT_PUBLIC_APP_NAME=Tic Tac Toe Multiplayer
 ```
 
