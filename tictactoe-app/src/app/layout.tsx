@@ -28,7 +28,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black`}
       >
         <div className="min-h-screen flex flex-col">
-          <header className="border-b bg-white/80 backdrop-blur">
+          <header className="border-b bg-gray-500 backdrop-blur">
             <div className="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between">
               <a href="/" className="text-lg font-semibold">Tic Tac Toe</a>
               <nav className="flex gap-4 text-sm">
@@ -40,11 +40,6 @@ export default function RootLayout({
           <div className="flex-1 bg-gradient-to-b from-white to-blue-50">
             {children}
           </div>
-          <footer className="border-t bg-white">
-            <div className="mx-auto max-w-5xl px-4 py-4 text-sm text-gray-600">
-              Built with Next.js App Router + MongoDB
-            </div>
-          </footer>
         </div>
       </body>
     </html>
