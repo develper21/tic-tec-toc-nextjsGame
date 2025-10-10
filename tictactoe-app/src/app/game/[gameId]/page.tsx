@@ -49,7 +49,7 @@ export default function GamePage(props: unknown) {
 	const movesCount = data?.moves?.length || 0
 	const nextSymbol = movesCount % 2 === 0 ? 'X' : 'O'
 	const nextName = nextSymbol === 'X' ? p1Name : p2Name
-	const winnerName = data?.game?.winner && (data.game.winner as any).username ? (data.game.winner as any).username : undefined
+	const winnerUsername = (data?.game?.winner as PlayerPop)?.username
 
 	async function makeMove(i: number) {
 		if (!username) return alert('Enter username (must match a player)')
@@ -87,7 +87,7 @@ export default function GamePage(props: unknown) {
 							<p className="mt-1 text-sm text-blue-700">Turn: {nextSymbol} ({nextName})</p>
 						)}
 						{data?.game?.status === 'finished' && (
-							<p className="mt-1 text-sm text-green-700">Winner: {winnerName || '—'}</p>
+							<p className="mt-1 text-sm text-green-700">Winner: {winnerUsername || '—'}</p>
 						)}
 						<div className="mt-6 grid grid-cols-3 gap-3">
 							{board.map((v, i) => (
@@ -115,7 +115,7 @@ export default function GamePage(props: unknown) {
 							<div className="mt-2 grid grid-cols-2 gap-2 text-sm">
 								<div className="rounded bg-gray-50 p-3">State: {data?.game?.status}</div>
 								<div className="rounded bg-gray-50 p-3">Moves: {movesCount}</div>
-								{data?.game?.status === 'finished' && <div className="col-span-2 rounded bg-green-50 p-3">Winner: {winnerName || '—'}</div>}
+								{data?.game?.status === 'finished' && <div className="col-span-2 rounded bg-green-50 p-3">Winner: {winnerUsername || '—'}</div>}
 							</div>
 						</div>
 					</aside>
