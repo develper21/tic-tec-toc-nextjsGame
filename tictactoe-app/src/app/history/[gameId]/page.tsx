@@ -8,6 +8,8 @@ export const metadata = {
 	description: 'Replay a finished game',
 }
 
+export const dynamic = 'force-dynamic'
+
 type PlayerDoc = { username?: string } | null | undefined
 
 type MoveDoc = { _id: string; position: number }

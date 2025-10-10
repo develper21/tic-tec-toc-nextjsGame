@@ -8,6 +8,8 @@ export const metadata = {
 	description: 'See games for a selected player',
 }
 
+export const dynamic = 'force-dynamic'
+
 type PopPlayer = { _id: string; username: string }
 
 type GameDoc = {

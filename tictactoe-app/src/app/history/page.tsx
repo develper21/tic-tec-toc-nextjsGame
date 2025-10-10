@@ -7,7 +7,7 @@ export const metadata = {
 	description: 'Browse player histories and game summaries',
 }
 
-export const revalidate = 30
+export const dynamic = 'force-dynamic'
 
 type PlayerDto = { _id: string; username: string }
 
