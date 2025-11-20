@@ -1,143 +1,135 @@
-# Tic Tac Toe Multiplayer (Next.js + MongoDB Atlas)
+<div align="center">
 
-A full-stack 2-player Tic Tac Toe web app built with Next.js App Router and MongoDB Atlas (Mongoose). Players join by username, play in real time (polling), and all games/moves/stats are persisted. Includes Leaderboard, Player History, and Replay. Demonstrates SSG, CSR, SSR, and ISR, with SEO metadata on each route.
+# Tic Tac Toe Arena
 
-## Tech Stack
-- Framework: Next.js 15 (App Router)
-- Language: TypeScript (strict in app code)
-- DB: MongoDB Atlas
-- ORM: Mongoose
-- Styling: Tailwind CSS (App template)
-- Auth: Username only (no login)
+Next.js multiplayer Tic Tac Toe experience with a neon-glass UI, persistent stats, and server-driven gameplay.
 
-## Key Features
-- Create a game, share ID, second player joins, alternate X/O
-- Persist games, moves, results to MongoDB
-- Update Player stats (wins/losses/draws)
-- Leaderboard ranked by wins
-- Player History list and Game Replay
-- Rendering modes:
-  - SSG: Home `/`
-  - CSR: Game board `/game/[gameId]`
-  - SSR: Leaderboard `/leaderboard`
-  - ISR: History `/history` (revalidate 30s)
-- SEO metadata per route
+</div>
 
-## Project Structure (selected)
-```
-src/
-  app/
-    api/
-      players/route.ts                # GET/POST players
-      games/route.ts                  # POST create game
-      games/open/route.ts             # GET open games
-      games/[gameId]/route.ts         # GET game details + moves
-      games/[gameId]/join/route.ts    # POST join game
-      games/[gameId]/move/route.ts    # POST submit move
-      history/[playerId]/route.ts     # GET player's games + moves
-    page.tsx                          # Home (SSG): create & join by ID
-    game/[gameId]/page.tsx            # Game (CSR)
-    leaderboard/page.tsx              # Leaderboard (SSR)
-    history/page.tsx                  # Players list (ISR)
-    history/[gameId]/page.tsx         # Replay page (server)
-    history/user/[playerId]/page.tsx  # Player’s game list (server)
-    layout.tsx                        # App shell + SEO defaults
-    globals.css
-  lib/
-    db.ts                             # Mongoose connection helper
-    game.ts                           # Board/winner helpers
-  models/
-    Player.ts
-    Game.ts
-    Move.ts
-```
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/React-149ECA?style=for-the-badge&logo=react&logoColor=white" alt="React" />
+  <img src="https://img.shields.io/badge/Tailwind%20CSS-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/MongoDB-00ED64?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Mongoose-880000?style=for-the-badge&logo=mongoose&logoColor=white" alt="Mongoose" />
+  <img src="https://img.shields.io/badge/Lucide-7C3AED?style=for-the-badge&logo=lucid&logoColor=white" alt="Lucide" />
+</p>
 
-## Database Schema
-- Players
+## Overview
+
+Tic Tac Toe Arena is a full-stack two-player experience powered by Next.js 15 App Router, TypeScript, and MongoDB Atlas via Mongoose. Players join with lightweight usernames (no auth friction), create or join games, and see their stats update instantly across Leaderboard, History, and Replay routes. The UI leans on Tailwind CSS animations, Lucide icons, and glassmorphism to deliver an arcade-inspired look.
+
+## Feature Highlights
+
+- ⚡ **One-click matchmaking** – Create a room as Player X or join with a game ID as Player O.
+- 🧠 **Server-side game orchestration** – Moves, winners, and draws are persisted in MongoDB for reliable replays.
+- 🏆 **Leaderboard + History** – Track wins/losses/draws, browse past matches, and replay move-by-move timelines.
+- 🖥️ **Multi-render strategy** – Mix of SSG, CSR, SSR, and ISR routes to balance interactivity and performance.
+- 🎨 **Modern UI polish** – Animated cards, neon gradients, and Lucide iconography for buttons/cards/feature callouts.
+- 🔐 **Username-only entry** – Barrier-free onboarding using simple username registration stored in MongoDB.
+
+## UI Preview
+
+> New dashboard view placed in `/public/` — live demo at [tictecme.vercel.app](https://tictecme.vercel.app/)
+
+[![Dashboard preview from the landing page](tictactoe-app/public/dashboard.png)](https://tictecme.vercel.app/)
+
+## Folder Structure
+
 ```
-{
-  username: string (unique, required),
-  wins: number,
-  losses: number,
-  draws: number
-}
-```
-- Games
-```
-{
-  player1: ObjectId (ref: Player, required),
-  player2?: ObjectId (ref: Player),
-  status: 'open' | 'active' | 'finished',
-  winner?: ObjectId (ref: Player),
-  createdAt: Date,
-  endedAt?: Date
-}
-```
-- Moves
-```
-{
-  gameId: ObjectId (ref: Game, required),
-  playerId: ObjectId (ref: Player, required),
-  position: number (0-8),
-  timestamp: Date
-}
+Tic-tecGame/
+└── tictactoe-app/
+    ├── public/
+    │   └── dashboard.png              # Landing screen showcase
+    ├── src/
+    │   ├── app/
+    │   │   ├── api/
+    │   │   │   ├── games/
+    │   │   │   │   ├── route.ts       # Create game
+    │   │   │   │   └── [gameId]/...
+    │   │   │   └── players/route.ts   # Leaderboard data
+    │   │   ├── game/[gameId]/page.tsx # CSR gameplay loop
+    │   │   ├── history/...            # Replay + player history
+    │   │   ├── leaderboard/page.tsx   # SSR leaderboard
+    │   │   ├── page.tsx               # Landing page + actions
+    │   │   └── layout.tsx             # Shell, header, metadata
+    │   ├── lib/
+    │   │   ├── db.ts                  # Mongoose connection cache
+    │   │   └── game.ts                # Board helpers & winner logic
+    │   └── models/
+    │       ├── Game.ts
+    │       └── Player.ts
+    ├── .env.local.example (create)    # Mongo URI + app name
+    └── package.json
 ```
 
-## Routes & Rendering
-- `/` (SSG): Create game, Join by ID, quick links
-- `/game/[gameId]` (CSR): Live board polling; make moves; shows usernames, current turn, and winner
-- `/leaderboard` (SSR): Real-time stats from MongoDB
-- `/history` (ISR - 30s): Players list linking to per-user history
-- `/history/user/[playerId]` (Server): All games for a user with opponent, result, time, and Replay button
-- `/history/[gameId]` (Server): Replay move list
+## Tech Stack (Deep Dive)
+
+| Layer | Details |
+| --- | --- |
+| Framework | Next.js 15 App Router, server actions, metadata per route |
+| Language | TypeScript (strict) |
+| Styling | Tailwind CSS 4, glassmorphism components, Lucide icons |
+| Data | MongoDB Atlas with Mongoose ODM |
+| Hosting | Ready for Vercel or any Node 18+ environment |
+
+## Getting Started
+
+1. **Install dependencies**
+   ```bash
+   cd tictactoe-app
+   npm install
+   ```
+2. **Configure environment** – create `tictactoe-app/.env.local`:
+   ```bash
+   MONGODB_URI=ADD_YOUR_MONGO_ATLAS_URL
+   NEXT_PUBLIC_APP_NAME=Tic Tac Toe Arena
+   ```
+3. **Run locally**
+   ```bash
+   npm run dev
+   # open http://localhost:3000
+   ```
+4. **Production build**
+   ```bash
+   npm run build
+   npm start
+   ```
+
+## Core Routes & Rendering Modes
+
+| Route | Purpose | Rendering |
+| --- | --- | --- |
+| `/` | Landing page, create/join actions, feature cards | **SSG** |
+| `/game/[gameId]` | Client-side gameplay, move polling, winner display | **CSR** |
+| `/leaderboard` | Rank players by wins | **SSR** |
+| `/history` | Player list with incremental refresh | **ISR (30s)** |
+| `/history/[gameId]` | Replay move timeline | **Server (dynamic)** |
+| `/history/user/[playerId]` | Player-focused match history | **Server (dynamic)** |
 
 ## API Endpoints
-- `GET /api/players`: List players for leaderboard
-- `POST /api/players`: Create player `{ username }`
-- `POST /api/games`: Create a new game `{ player1Username }` → returns `{ _id }`
-- `GET /api/games/open`: List open games
-- `GET /api/games/[gameId]`: Game details with moves
-- `POST /api/games/[gameId]/join`: Join open game `{ player2Username }`
-- `POST /api/games/[gameId]/move`: Submit move `{ playerUsername, position }`
-- `GET /api/history/[playerId]`: Player’s games + moves (raw)
 
-## Setup
-1) Create MongoDB Atlas cluster and user
-2) Whitelist your IP or use `0.0.0.0/0` for development
-3) Copy your connection URI
-4) Create `.env.local` in project root with:
-```
-MONGODB_URI=ADD_YOUR_MONGO_ATLAS_URL
-NEXT_PUBLIC_APP_NAME=Tic Tac Toe Multiplayer
-```
+- `POST /api/games` – Create a new game with `{ player1Username }` → returns `{ _id }`.
+- `POST /api/games/[gameId]/join` – Join an open match with `{ player2Username }`.
+- `POST /api/games/[gameId]/move` – Persist a move `{ playerUsername, position }`.
+- `GET /api/games/[gameId]` – Fetch a game with moves for rendering/replay.
+- `GET /api/games/open` – List joinable rooms.
+- `GET/POST /api/players` – Maintain leaderboard data.
+- `GET /api/history/[playerId]` – Aggregate a player’s games + moves.
 
-## Develop
-```bash
-npm install
-npm run dev
-# open http://localhost:3000
-```
+## Gameplay Flow
 
-## Build & Run
-```bash
-npm run build
-npm start
-```
+1. **Create Game** – Enter username on `/`, server action hits `POST /api/games`, redirects to `/game/[gameId]` as Player X.
+2. **Share ID** – Friend submits Game ID + username to join as Player O.
+3. **Make Moves** – Board alternates automatically (`nextSymbolFromMoves`). Winner/draw detection handled in `src/lib/game.ts`.
+4. **Persist Stats** – Player documents update wins/losses/draws; history entries become available instantly.
+5. **Explore Data** – Leaderboard, History, and Replay pages show real-time progress.
 
-## How to Play
-- Home → Create Game (enter your username) → redirects to `/game/[gameId]`
-- Share the Game ID to your friend
-- Friend can:
-  - Open Home → Join Game by ID (enter gameId + username), or
-  - Open `/game/[gameId]`, use the Join box on the right
-- The board alternates X (player1) and O (player2)
-- At finish, winner/loser stats update; draws count for both
-- View Leaderboard and History to confirm stats
+## Troubleshooting & Tips
 
-## SEO & Metadata
-Each route exports metadata (title, description) for better discoverability.
+- **Mongo connection errors** – Ensure `MONGODB_URI` is present and Atlas IP access rules allow your environment.
+- **Absolute fetch origin** – Server actions derive origin via `headers().get('origin')`; adjust fallback for custom hosts.
+- **Styling tweaks** – Tailwind classes live in `src/app/globals.css` + component files; neon glow utilities defined there.
 
-## Troubleshooting
-- 500 on create/join in dev: ensure `MONGODB_URI` is set and MongoDB Atlas allows your IP
-- Server action fetch: absolute origin is derived from `headers().get('origin')`
-- If using another port/host, adjust origin fallback in `app/page.tsx`
+Enjoy the game and customize the arena to match your brand!
